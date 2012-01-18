@@ -1,8 +1,8 @@
-This is an updated version of the offical socialshareprivay code from:
+This is an updated version of the offical socialshareprivay (v1.3) code from:
 http://www.heise.de/extras/socialshareprivacy/
 
 + Additional support for Vkontakte
-+ Updated the Privacy plugin to use https links instead the http urls
++ Updated the Privacy plugin to use https links instead of the previously used http urls/iframes
 
 All copyrights lie with the heise developers:
 
