@@ -1,8 +1,8 @@
-This is an inoffical 1:1 clone of the offical socialshareprivay code from:
-
+This is an updated version of the offical socialshareprivay code from:
 http://www.heise.de/extras/socialshareprivacy/
 
-I think publishing code without any version control is silly, therefore i try to keep this repo updated with their changes.
++ Additional support for Vkontakte
++ Updated the Privacy plugin to use https links instead the http urls
 
 All copyrights lie with the heise developers:
 

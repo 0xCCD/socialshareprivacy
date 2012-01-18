@@ -15,7 +15,7 @@
 
     "use strict";
 
-	/*
+    /*
 	 * helper functions
 	 */ 
 
@@ -78,7 +78,7 @@
         expires.setTime(expires.getTime() - 100);
         document.cookie = name + '=' + value + '; expires=' + expires.toUTCString() + '; path=' + path + '; domain=' + domain;
     }
-
+    
     // extend jquery with our plugin function
     $.fn.socialSharePrivacy = function (settings) {
         var defaults = {
@@ -117,6 +117,17 @@
                     'display_name'      : 'Google+',
                     'referrer_track'    : '',
                     'language'          : 'de'
+                },
+                'vkontakte' : {
+                    'status'            : 'on',
+                    'dummy_img'         : 'socialshareprivacy/images/dummy_vkontakte.png',
+                    'txt_info'          : '2 Klicks f&uuml;r mehr Datenschutz: Erst wenn Sie hier klicken, wird der Button aktiv und Sie k&ouml;nnen Ihre Empfehlung an Vkontakte senden. Schon beim Aktivieren werden Daten an Dritte &uuml;bertragen &ndash; siehe <em>i</em>.',
+                    'txt_gplus_off'     : 'nicht mit Vkontakte verbunden',
+                    'txt_gplus_on'      : 'mit Vkontakte verbunden',
+                    'perma_option'      : 'on',
+                    'display_name'      : 'Vkontakte',
+                    'referrer_track'    : '',
+                    'language'          : 'ru'
                 }
             },
             'info_link'         : 'http://www.heise.de/ct/artikel/2-Klicks-fuer-mehr-Datenschutz-1333879.html',
@@ -131,13 +142,14 @@
 
         // Standardwerte des Plug-Ings mit den vom User angegebenen Optionen ueberschreiben
         var options = $.extend(true, defaults, settings);
-
+        
         var facebook_on = (options.services.facebook.status === 'on');
         var twitter_on  = (options.services.twitter.status  === 'on');
         var gplus_on    = (options.services.gplus.status    === 'on');
+        var vkontakte_on    = (options.services.vkontakte.status    === 'on');
 
         // check if at least one service is "on"
-        if (!facebook_on && !twitter_on && !gplus_on) {
+        if (!facebook_on && !twitter_on && !gplus_on && !vkontakte_on) {
             return;
         }
 
@@ -167,7 +179,7 @@
             //
             if (facebook_on) {
                 var fb_enc_uri = encodeURIComponent(uri + options.services.facebook.referrer_track);
-                var fb_code = '<iframe src="http://www.facebook.com/plugins/like.php?locale=' + options.services.facebook.language + '&amp;href=' + fb_enc_uri + '&amp;send=false&amp;layout=button_count&amp;width=120&amp;show_faces=false&amp;action=' + options.services.facebook.action + '&amp;colorscheme=light&amp;font&amp;height=21" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:145px; height:21px;" allowTransparency="true"></iframe>';
+                var fb_code = '<iframe src="https://www.facebook.com/plugins/like.php?locale=' + options.services.facebook.language + '&amp;href=' + fb_enc_uri + '&amp;send=false&amp;layout=button_count&amp;width=120&amp;show_faces=false&amp;action=' + options.services.facebook.action + '&amp;colorscheme=light&amp;font&amp;height=21" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:145px; height:21px;" allowTransparency="true"></iframe>';
                 var fb_dummy_btn = '<img src="' + options.services.facebook.dummy_img + '" alt="Facebook &quot;Like&quot;-Dummy" class="fb_like_privacy_dummy" />';
 
                 context.append('<li class="facebook help_info"><span class="info">' + options.services.facebook.txt_info + '</span><span class="switch off">' + options.services.facebook.txt_fb_off + '</span><div class="fb_like dummy_btn">' + fb_dummy_btn + '</div></li>');
@@ -200,7 +212,7 @@
 
                 var twitter_enc_uri = encodeURIComponent(uri + options.services.twitter.referrer_track);
                 var twitter_count_url = encodeURIComponent(uri);
-                var twitter_code = '<iframe allowtransparency="true" frameborder="0" scrolling="no" src="http://platform.twitter.com/widgets/tweet_button.html?url=' + twitter_enc_uri + '&amp;counturl=' + twitter_count_url + '&amp;text=' + text + '&amp;count=horizontal&amp;lang=' + options.services.twitter.language + '" style="width:130px; height:25px;"></iframe>';
+                var twitter_code = '<iframe allowtransparency="true" frameborder="0" scrolling="no" src="https://platform.twitter.com/widgets/tweet_button.html?url=' + twitter_enc_uri + '&amp;counturl=' + twitter_count_url + '&amp;text=' + text + '&amp;count=horizontal&amp;lang=' + options.services.twitter.language + '" style="width:130px; height:25px;"></iframe>';
                 var twitter_dummy_btn = '<img src="' + options.services.twitter.dummy_img + '" alt="&quot;Tweet this&quot;-Dummy" class="tweet_this_dummy" />';
 
                 context.append('<li class="twitter help_info"><span class="info">' + options.services.twitter.txt_info + '</span><span class="switch off">' + options.services.twitter.txt_twitter_off + '</span><div class="tweet dummy_btn">' + twitter_dummy_btn + '</div></li>');
@@ -247,6 +259,73 @@
                     }
                 });
             }
+            
+
+            //
+            // Vkontakte
+            //
+            if (vkontakte_on) {
+                
+                // fuer Vkontakte wird die URL nicht encoded, da das zu einem Fehler fuehrt
+                var vkontakte_uri = uri + encodeURIComponent(uri + options.services.vkontakte.referrer_track);
+                
+                var head = $("body");
+                var Ausdruck = /(vkontakte\.js)/;
+                var head_content = head.html();
+                
+                Ausdruck.exec(head_content);
+                
+                var erg = RegExp.$1;
+        
+                if(erg!="vkontakte"){
+                    
+                    var script   = document.createElement("script");
+                    script.type  = "text/javascript";
+                    script.src   = "https://vkontakte.ru/js/api/share.js?9";
+                    script.charset  = "windows-1251";
+                    
+                    document.body.appendChild(script);
+                    
+                }
+
+                // we use the VK.Share.button function to create the dom element
+                
+                var init_vkontakte_button = function(){
+                    
+                    if(window.VK){
+                    
+                        var vkontakte_code = VK.Share.button(vkontakte_uri, {
+                            type: 'round'
+                        });
+                    
+                        var vkontakte_dummy_btn = '<img src="' + options.services.vkontakte.dummy_img + '" alt="&quot;Vkontakte&quot;-Dummy" class="vkontakte_dummy" />';
+
+                        context.append('<li class="vkontakte help_info"><span class="info">' + options.services.vkontakte.txt_info + '</span><span class="switch off">' + options.services.vkontakte.txt_vkontakte_off + '</span><div class="vkontakte dummy_btn">' + vkontakte_dummy_btn + '</div></li>');
+
+                        var $container_vkontakte = $('li.vkontakte', context);
+
+                        $('li.vkontakte div.vkontakte img,li.vkontakte span.switch', context).live('click', function () {
+                            if ($container_vkontakte.find('span.switch').hasClass('off')) {
+                                $container_vkontakte.addClass('info_off');
+                                $container_vkontakte.find('span.switch').addClass('on').removeClass('off').html(options.services.vkontakte.txt_vkontakte_on);
+                                $container_vkontakte.find('img.vkontakte_dummy').replaceWith(vkontakte_code);
+                            } else {
+                                $container_vkontakte.removeClass('info_off');
+                                $container_vkontakte.find('span.switch').addClass('off').removeClass('on').html(options.services.vkontakte.txt_vkontakte_off);
+                                $container_vkontakte.find('.vkontakte').html(vkontakte_dummy_btn);
+                            
+                            }
+                        });
+                    
+                    }else{
+                        setTimeout(init_vkontakte_button, 100)
+                    }
+                    
+                }
+                
+                setTimeout(init_vkontakte_button, 500)
+
+            }
 
             //
             // Der Info/Settings-Bereich wird eingebunden
@@ -256,7 +335,9 @@
             // Info-Overlays mit leichter Verzoegerung einblenden
             $('.help_info:not(.info_off)', context).live('mouseenter', function () {
                 var $info_wrapper = $(this);
-                var timeout_id = window.setTimeout(function () { $($info_wrapper).addClass('display'); }, 500);
+                var timeout_id = window.setTimeout(function () {
+                    $($info_wrapper).addClass('display');
+                }, 500);
                 $(this).data('timeout_id', timeout_id);
             });
             $('.help_info', context).live('mouseleave', function () {
@@ -270,13 +351,15 @@
             var facebook_perma = (options.services.facebook.perma_option === 'on');
             var twitter_perma  = (options.services.twitter.perma_option  === 'on');
             var gplus_perma    = (options.services.gplus.perma_option    === 'on');
-
+            var vkontakte_perma    = (options.services.vkontakte.perma_option    === 'on');
+	    
             // Menue zum dauerhaften Einblenden der aktiven Dienste via Cookie einbinden
             // Die IE7 wird hier ausgenommen, da er kein JSON kann und die Cookies hier ueber JSON-Struktur abgebildet werden
             if (((facebook_on && facebook_perma)
                 || (twitter_on && twitter_perma)
-                || (gplus_on && gplus_perma))
-                    && (!$.browser.msie || ($.browser.msie && $.browser.version > 7.0))) {
+                || (gplus_on && gplus_perma)
+                || (vkontakte_on && vkontakte_perma))
+            && (!$.browser.msie || ($.browser.msie && $.browser.version > 7.0))) {
 
                 // Cookies abrufen
                 var cookie_list = document.cookie.split(';');
@@ -308,35 +391,46 @@
                     var perma_status_facebook = cookies.socialSharePrivacy_facebook === 'perma_on' ? checked : '';
                     $container_settings_info.find('form fieldset').append(
                         '<input type="checkbox" name="perma_status_facebook" id="perma_status_facebook"'
-                            + perma_status_facebook + ' /><label for="perma_status_facebook">'
-                            + options.services.facebook.display_name + '</label>'
-                    );
+                        + perma_status_facebook + ' /><label for="perma_status_facebook">'
+                        + options.services.facebook.display_name + '</label>'
+                        );
                 }
 
                 if (twitter_on && twitter_perma) {
                     var perma_status_twitter = cookies.socialSharePrivacy_twitter === 'perma_on' ? checked : '';
                     $container_settings_info.find('form fieldset').append(
                         '<input type="checkbox" name="perma_status_twitter" id="perma_status_twitter"'
-                            + perma_status_twitter + ' /><label for="perma_status_twitter">'
-                            + options.services.twitter.display_name + '</label>'
-                    );
+                        + perma_status_twitter + ' /><label for="perma_status_twitter">'
+                        + options.services.twitter.display_name + '</label>'
+                        );
                 }
 
                 if (gplus_on && gplus_perma) {
                     var perma_status_gplus = cookies.socialSharePrivacy_gplus === 'perma_on' ? checked : '';
                     $container_settings_info.find('form fieldset').append(
                         '<input type="checkbox" name="perma_status_gplus" id="perma_status_gplus"'
-                            + perma_status_gplus + ' /><label for="perma_status_gplus">'
-                            + options.services.gplus.display_name + '</label>'
-                    );
+                        + perma_status_gplus + ' /><label for="perma_status_gplus">'
+                        + options.services.gplus.display_name + '</label>'
+                        );
                 }
 
+                if (vkontakte_on && vkontakte_perma) {
+                    var perma_status_vkontakte = cookies.socialSharePrivacy_gplus === 'perma_on' ? checked : '';
+                    $container_settings_info.find('form fieldset').append(
+                        '<input type="checkbox" name="perma_status_vkontakte" id="perma_status_vkontakte"'
+                        + perma_status_vkontakte + ' /><label for="perma_status_vkontakte">'
+                        + options.services.vkontakte.display_name + '</label>'
+                        );
+                }
+                
                 // Cursor auf Pointer setzen fuer das Zahnrad
                 $container_settings_info.find('span.settings').css('cursor', 'pointer');
 
                 // Einstellungs-Menue bei mouseover ein-/ausblenden
                 $($container_settings_info.find('span.settings'), context).live('mouseenter', function () {
-                    var timeout_id = window.setTimeout(function () { $container_settings_info.find('.settings_info_menu').removeClass('off').addClass('on'); }, 500);
+                    var timeout_id = window.setTimeout(function () {
+                        $container_settings_info.find('.settings_info_menu').removeClass('off').addClass('on');
+                    }, 500);
                     $(this).data('timeout_id', timeout_id);
                 }); 
                 $($container_settings_info, context).live('mouseleave', function () {
@@ -369,6 +463,9 @@
                 }
                 if (gplus_on && gplus_perma && cookies.socialSharePrivacy_gplus === 'perma_on') {
                     $('li.gplus span.switch', context).click();
+                }
+                if (vkontakte_on && vkontakte_perma && cookies.socialSharePrivacy_vkontakte === 'perma_on') {
+                    $('li.vkontakte span.switch', context).click();
                 }
             }
         }); // this.each(function ()
