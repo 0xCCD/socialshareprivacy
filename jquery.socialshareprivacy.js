@@ -266,29 +266,38 @@
             //
             if (vkontakte_on) {
                 
-                // fuer Vkontakte wird die URL nicht encoded, da das zu einem Fehler fuehrt
+                
                 var vkontakte_uri = uri + encodeURIComponent(uri + options.services.vkontakte.referrer_track);
                 
-                var head = $("body");
-                var Ausdruck = /(vkontakte\.js)/;
-                var head_content = head.html();
+                var vkontakte_dummy_btn = '<img src="' + options.services.vkontakte.dummy_img + '" alt="&quot;Vkontakte&quot;-Dummy" class="vkontakte_dummy" />';
+                context.append('<li class="vkontakte help_info"><span class="info">' + options.services.vkontakte.txt_info + '</span><span class="switch off">' + options.services.vkontakte.txt_vkontakte_off + '</span><div class="vkontakte dummy_btn">' + vkontakte_dummy_btn + '</div></li>');
                 
-                Ausdruck.exec(head_content);
+                var $container_vkontakte = $('li.vkontakte', context);
                 
-                var erg = RegExp.$1;
+                // fuer Vkontakte wird die URL nicht encoded, da das zu einem Fehler fuehrt
+                
+                var init_vkontakte_script = function(){
+                    
+                    var head = $("body");
+                    var Ausdruck = /(vkontakte\.js)/;
+                    var head_content = head.html();
+                
+                    Ausdruck.exec(head_content);
+                
+                    var erg = RegExp.$1;
         
-                if(erg!="vkontakte"){
+                    if(erg!="vkontakte.js"){
                     
-                    var script   = document.createElement("script");
-                    script.type  = "text/javascript";
-                    script.src   = "https://vkontakte.ru/js/api/share.js?9";
-                    script.charset  = "windows-1251";
+                        var script   = document.createElement("script");
+                        script.type  = "text/javascript";
+                        script.src   = "https://vkontakte.ru/js/api/share.js?9";
+                        script.charset  = "windows-1251";
                     
-                    document.body.appendChild(script);
+                        document.body.appendChild(script);
                     
+                    }
                 }
-
-                // we use the VK.Share.button function to create the dom element
+                
                 
                 var init_vkontakte_button = function(){
                     
@@ -297,25 +306,10 @@
                         var vkontakte_code = VK.Share.button(vkontakte_uri, {
                             type: 'round'
                         });
-                    
-                        var vkontakte_dummy_btn = '<img src="' + options.services.vkontakte.dummy_img + '" alt="&quot;Vkontakte&quot;-Dummy" class="vkontakte_dummy" />';
-
-                        context.append('<li class="vkontakte help_info"><span class="info">' + options.services.vkontakte.txt_info + '</span><span class="switch off">' + options.services.vkontakte.txt_vkontakte_off + '</span><div class="vkontakte dummy_btn">' + vkontakte_dummy_btn + '</div></li>');
-
-                        var $container_vkontakte = $('li.vkontakte', context);
-
-                        $('li.vkontakte div.vkontakte img,li.vkontakte span.switch', context).live('click', function () {
-                            if ($container_vkontakte.find('span.switch').hasClass('off')) {
-                                $container_vkontakte.addClass('info_off');
-                                $container_vkontakte.find('span.switch').addClass('on').removeClass('off').html(options.services.vkontakte.txt_vkontakte_on);
-                                $container_vkontakte.find('img.vkontakte_dummy').replaceWith(vkontakte_code);
-                            } else {
-                                $container_vkontakte.removeClass('info_off');
-                                $container_vkontakte.find('span.switch').addClass('off').removeClass('on').html(options.services.vkontakte.txt_vkontakte_off);
-                                $container_vkontakte.find('.vkontakte').html(vkontakte_dummy_btn);
-                            
-                            }
-                        });
+                                
+                        $container_vkontakte.addClass('info_off');
+                        $container_vkontakte.find('span.switch').addClass('on').removeClass('off').html(options.services.vkontakte.txt_vkontakte_on);
+                        $container_vkontakte.find('img.vkontakte_dummy').replaceWith(vkontakte_code);
                     
                     }else{
                         setTimeout(init_vkontakte_button, 100)
@@ -323,8 +317,28 @@
                     
                 }
                 
-                setTimeout(init_vkontakte_button, 500)
-
+                $('li.vkontakte div.vkontakte img, li.vkontakte span.switch', context).live('click', function () {
+                    
+                    console.log($container_vkontakte.find('span.switch'))
+                    
+                    if ($container_vkontakte.find('span.switch').hasClass('off')) {
+                        
+                        console.log("try on")
+                        // we use the VK.Share.button function to create the dom element
+                
+                        init_vkontakte_script();
+                        setTimeout(init_vkontakte_button, 500)
+                        
+                    } else {
+                        
+                        console.log("try off")
+                        
+                        $container_vkontakte.removeClass('info_off');
+                        $container_vkontakte.find('span.switch').addClass('off').removeClass('on').html(options.services.vkontakte.txt_vkontakte_off);
+                        $container_vkontakte.find('.vkontakte').html(vkontakte_dummy_btn);
+                    }
+                });
+                
             }
 
             //
