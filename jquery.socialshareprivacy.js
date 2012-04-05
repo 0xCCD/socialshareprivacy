@@ -266,7 +266,6 @@
             //
             if (vkontakte_on) {
                 
-                
                 var vkontakte_uri = uri + encodeURIComponent(uri + options.services.vkontakte.referrer_track);
                 
                 var vkontakte_dummy_btn = '<img src="' + options.services.vkontakte.dummy_img + '" alt="&quot;Vkontakte&quot;-Dummy" class="vkontakte_dummy" />';
@@ -319,19 +318,13 @@
                 
                 $('li.vkontakte div.vkontakte img, li.vkontakte span.switch', context).live('click', function () {
                     
-                    console.log($container_vkontakte.find('span.switch'))
-                    
                     if ($container_vkontakte.find('span.switch').hasClass('off')) {
                         
-                        console.log("try on")
-                        // we use the VK.Share.button function to create the dom element
                 
                         init_vkontakte_script();
                         setTimeout(init_vkontakte_button, 500)
                         
                     } else {
-                        
-                        console.log("try off")
                         
                         $container_vkontakte.removeClass('info_off');
                         $container_vkontakte.find('span.switch').addClass('off').removeClass('on').html(options.services.vkontakte.txt_vkontakte_off);
